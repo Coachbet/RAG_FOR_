@@ -1,0 +1,20 @@
+# secrets
+.env
+
+# python / uv
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# raw API cache (re-downloadable with `make data`); processed documents ARE committed (shareable, CC BY-NC-SA)
+data/raw/ifixit/
+
+# build outputs
+dist/
+models/
+
+# OS
+.DS_Store

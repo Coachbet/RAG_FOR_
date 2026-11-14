@@ -1,0 +1,16 @@
+// CarFix evaluation set. One JSON object per line; lines starting with // are ignored.
+// Required by the assignment: 20 TEST questions with the expected answer, including 5 with NO answer in the docs.
+// "dev" questions are only used to calibrate MIN_SCORE (`make sweep`); final numbers come from "test".
+// Fields: id, question, answerable, expected_answer, expected_doc_ids (guide ids, e.g. "ifixit-12345"), split, kind
+// TODO after `make data && make index && make eval-draft`: replace the answerable placeholders below with
+// 15 verified test questions + ~8 dev questions from eval/questions.draft.jsonl, and CHECK every unanswerable
+// question with `make ask Q="..."` (the answer must really be absent from data/processed/documents.jsonl).
+{"id": "t-u1", "question": "How much does a timing belt replacement cost at a Toyota dealership?", "answerable": false, "split": "test", "kind": "near-miss: price"}
+{"id": "t-u2", "question": "What is the towing capacity of a 2018 Ford F-150?", "answerable": false, "split": "test", "kind": "near-miss: specification"}
+{"id": "t-u3", "question": "Is my car still covered by the manufacturer warranty after 5 years?", "answerable": false, "split": "test", "kind": "near-miss: legal"}
+{"id": "t-u4", "question": "How do I replace the battery of an iPhone 13?", "answerable": false, "split": "test", "kind": "near-miss: other device (iFixit has it, our index does not)"}
+{"id": "t-u5", "question": "What is the speed limit on French motorways when it rains?", "answerable": false, "split": "test", "kind": "out-of-domain"}
+{"id": "d-u1", "question": "Which insurance covers a cracked windshield?", "answerable": false, "split": "dev", "kind": "near-miss: insurance"}
+{"id": "d-u2", "question": "What is the best recipe for a chocolate cake?", "answerable": false, "split": "dev", "kind": "out-of-domain"}
+{"id": "d-u3", "question": "How do I update the infotainment software of a Tesla Model 3?", "answerable": false, "split": "dev", "kind": "near-miss: software"}
+{"id": "d-u4", "question": "What does the law say about tinted front windows in France?", "answerable": false, "split": "dev", "kind": "near-miss: legal"}
