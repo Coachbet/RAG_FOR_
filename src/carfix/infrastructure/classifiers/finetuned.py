@@ -50,6 +50,7 @@ class FineTunedClassifier:
         self.model = AutoModelForSequenceClassification.from_pretrained(
             model_name_or_path, num_labels=len(labels),
             id2label=dict(enumerate(labels)), label2id={l: i for i, l in enumerate(labels)},
+            ignore_mismatched_sizes=True,  # a base checkpoint with another head gets a fresh one
         ).to(self.device)
 
     # ------------------------------------------------------------- training
@@ -97,7 +98,14 @@ class FineTunedClassifier:
 
     def _encode(self, texts: list[str]):
         enc = self.tokenizer(texts, truncation=True, padding=True, max_length=self.max_length, return_tensors="pt")
-        return {k: v.to(self.device) for k, v in enc.items()}
+        accepted = self._forward_args()  # e.g. DistilBERT takes no token_type_ids
+        return {k: v.to(self.device) for k, v in enc.items() if k in accepted}
+
+    def _forward_args(self) -> set[str]:
+        import inspect
+        if not hasattr(self, "_args"):
+            self._args = set(inspect.signature(self.model.forward).parameters)
+        return self._args
 
     def predict_proba(self, texts: list[str], batch_size: int = 64) -> np.ndarray:
         import torch

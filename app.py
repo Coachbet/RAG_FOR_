@@ -112,7 +112,7 @@ def _n_docs() -> str:
 
 THEME = gr.themes.Soft(primary_hue="orange", secondary_hue="amber", neutral_hue="stone")
 
-with gr.Blocks(title="CarFix: car repair assistant", theme=THEME) as demo:
+with gr.Blocks(title="CarFix: car repair assistant") as demo:
     gr.Markdown("# 🔧 CarFix\nAsk how to repair your car. Answers come **only** from iFixit repair guides, "
                 "with their sources. If the guides don't cover it, CarFix says so.")
     with gr.Tab("Ask CarFix"):
@@ -138,4 +138,4 @@ with gr.Blocks(title="CarFix: car repair assistant", theme=THEME) as demo:
         gr.Markdown(about_markdown())
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(theme=THEME)
