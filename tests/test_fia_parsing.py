@@ -25,9 +25,15 @@ Infringement Alleged breach of Appendix L, Chapter IV, Art 2 (d) of the Internat
 Decision No further action.
 Reason The Stewards reviewed video evidence including in-car footage. Car 10 was on the outside of Car 27
 at the exit of Turn 5 and the cars touched wheels. The Stewards considered it a racing incident.
-Competitors are reminded of their right to appeal certain decisions of the Stewards.
-Steward One Steward Two
+Competitors are
+reminded that they have the right to appeal certain decisions of the Stewards, within the applicable time limits.
+Decisions of the Stewards are taken independently of the FIA and are based solely on the relevant regulations.
+The Stewards
+Paula Steward Marco Referee
+Jean-Luc Official Amira Al Judge
 """
+
+STEWARDS = ("Paula Steward Marco Referee", "Jean-Luc Official Amira Al Judge")
 
 
 def test_parse_pdf_url():
@@ -59,13 +65,21 @@ def test_parse_decision():
     assert d.session == "Race" and d.time == "17:04"
     assert d.fact.startswith("Car 10 allegedly causing a collision")
     assert d.decision == "No further action."
-    assert d.reason.endswith("racing incident.") and "appeal" not in d.reason and "Steward One" not in d.reason
+    assert d.reason.endswith("racing incident.") and "appeal" not in d.reason
+    assert d.stewards == STEWARDS
+    assert not any(w in d.reason for w in ("Paula", "Referee", "Amira", "independently"))
 
 
 def test_parse_decision_without_line_breaks():
     flat = " ".join(DECISION_TEXT.split())
     d = parse_decision(flat, parse_pdf_url(URL))
     assert d is not None and d.decision == "No further action." and d.session == "Race"
+
+
+def test_signature_is_dropped_even_without_closing_sentence():
+    text = DECISION_TEXT.split("Competitors are")[0] + "Paula Steward Marco Referee\nJean-Luc Official Amira Al Judge\n"
+    d = parse_decision(text, parse_pdf_url(URL))
+    assert d.reason.endswith("racing incident.")
 
 
 def test_not_a_decision():

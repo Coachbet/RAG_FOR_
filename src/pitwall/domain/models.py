@@ -108,3 +108,4 @@ class StewardDecision:
     infringement: str = ""
     decision: str = ""
     reason: str = ""
+    stewards: tuple[str, ...] = ()   # signature lines (personal data, removed by the anonymiser)

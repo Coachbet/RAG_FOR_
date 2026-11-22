@@ -81,7 +81,8 @@ def prepare(decisions: list[StewardDecision], overrides: dict[str, str] | None =
     report: Counter = Counter(decisions_in=len(decisions))
     rosters = build_rosters(decisions)
     teams = sorted({d.competitor for d in decisions if d.competitor})
-    anonymisers = {season: Anonymiser(roster, teams) for season, roster in rosters.items()}
+    stewards = sorted({line for d in decisions for line in d.stewards})
+    anonymisers = {season: Anonymiser(roster, teams, stewards) for season, roster in rosters.items()}
 
     # Corrected re-publications share the doc id: keep the last one.
     unique = list({d.doc_id: d for d in decisions}.values())
@@ -93,7 +94,7 @@ def prepare(decisions: list[StewardDecision], overrides: dict[str, str] | None =
         if not is_on_track(d.title, d.fact, d.infringement):
             report["dropped_not_on_track"] += 1
             continue
-        anon = anonymisers.get(d.season, Anonymiser(teams=teams))
+        anon = anonymisers.get(d.season, Anonymiser(teams=teams, stewards=stewards))
         fields, _ = anon.anonymise({"title": d.title, "fact": d.fact, "infringement": d.infringement,
                                     "decision": d.decision, "reason": d.reason}, d.car)
         residual += sum(bool(anon.residual_names(t)) for t in fields.values())
@@ -147,6 +148,7 @@ def prepare(decisions: list[StewardDecision], overrides: dict[str, str] | None =
         "rag_decision_documents": len(documents),
         "test_decisions_excluded_from_rag": sum(1 for r in rows if r["split"] == "test"),
         "fields_with_residual_names": residual,
+        "steward_signature_lines": len(stewards),
         "overrides_applied": sum(1 for r in rows if r["id"] in overrides),
     })
     report_dict = dict(report)

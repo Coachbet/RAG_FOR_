@@ -4,6 +4,8 @@ Per decision, the driver concerned by the decision is always "Driver A"; the oth
 order of appearance. Names come from a roster built from the "No / Driver" field of every downloaded decision
 (so it covers reserve and rookie drivers too), and car numbers are replaced wherever they appear.
 Team names are replaced by "[team]" (a team identifies its two drivers).
+The stewards' names (signature block of every decision) are removed: they are real people, and they identify the
+race, so a model could learn the panel instead of the incident.
 """
 from __future__ import annotations
 
@@ -37,6 +39,13 @@ def parse_driver_field(value: str) -> tuple[str, str]:
 class Anonymiser:
     roster: dict[str, str] = field(default_factory=dict)   # driver full name -> car number
     teams: list[str] = field(default_factory=list)          # full competitor names
+    stewards: list[str] = field(default_factory=list)       # signature lines, e.g. "First Last First Last"
+
+    def _steward_patterns(self) -> list[re.Pattern]:
+        """Each signature line, then each capitalised word of 4+ letters in it (names split over two lines)."""
+        words = {w for line in self.stewards for w in line.split() if len(w) >= 4 and w[:1].isupper()}
+        phrases = sorted(set(self.stewards) | words, key=len, reverse=True)
+        return [re.compile(rf"(?<![\w-]){re.escape(p)}(?![\w-])") for p in phrases if p]
 
     def _name_patterns(self) -> list[tuple[re.Pattern, str]]:
         """(pattern, car number) for full names, then surnames, then first names, longest first."""
@@ -74,6 +83,7 @@ class Anonymiser:
 
         names = self._name_patterns()
         teams = sorted(set(self.teams) | set(TEAM_NAMES), key=len, reverse=True)
+        steward_pats = self._steward_patterns()
         out = {}
         for key, t in texts.items():
             t = t or ""
@@ -84,6 +94,9 @@ class Anonymiser:
             for team in teams:
                 if team:
                     t = re.sub(rf"(?<!\w){re.escape(team)}(?!\w)", "[team]", t)
+            for pat in steward_pats:
+                t = pat.sub("", t)
+            t = re.sub(r"\s{2,}", " ", t).strip()
             out[key] = re.sub(r"\[team\](?:\s+\[team\])+", "[team]", t)
         return out, letters
 
@@ -95,8 +108,8 @@ class Anonymiser:
         return f"{word} {ls[0]}" if len(ls) == 1 else f"{word} {', '.join(ls[:-1])} and {ls[-1]}"
 
     def residual_names(self, text: str) -> list[str]:
-        """Roster names (full, surname) still present: should always be empty after anonymise()."""
-        found = []
+        """Driver names (full, surname) or steward names still present: always empty after anonymise()."""
+        found = [p.pattern for p in self._steward_patterns() if p.search(text)]
         for full in self.roster:
             for v in {full, full.split()[-1], fold(full), fold(full.split()[-1])}:
                 if len(v) > 2 and re.search(rf"(?<![\w-]){re.escape(v)}(?![\w-])", text):

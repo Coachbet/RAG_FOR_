@@ -15,6 +15,9 @@ data/raw/fia/
 data/processed/
 data/ft/*.jsonl
 data/ft/label_review.csv
+# the index holds chunked FIA text
+data/index/*
+!data/index/.gitkeep
 
 # build outputs
 dist/

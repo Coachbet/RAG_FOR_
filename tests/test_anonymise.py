@@ -28,5 +28,14 @@ def test_primary_driver_is_driver_a_and_numbers_are_consistent():
         assert anon.residual_names(t) == []
 
 
+def test_steward_names_are_removed():
+    anon = Anonymiser(ROSTER, TEAMS, stewards=["Paula Steward Marco Referee"])
+    out, _ = anon.anonymise({"reason": "Driver A spun. Paula Steward Marco Referee",
+                             "other": "Seen by Referee at the time."}, primary_car="10")
+    assert out["reason"] == "Driver A spun." and "Referee" not in out["other"]
+    assert anon.residual_names(out["reason"] + out["other"]) == []
+    assert anon.residual_names("Marco Referee said") != []
+
+
 def test_fold():
     assert fold("Hülkenberg Pérez") == "Hulkenberg Perez"

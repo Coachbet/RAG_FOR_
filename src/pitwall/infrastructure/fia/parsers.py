@@ -19,8 +19,16 @@ _KEYS = {"No / Driver": "driver", "Competitor": "competitor", "Time": "time", "S
          "Fact": "fact", "Infringement": "infringement", "Decision": "decision", "Reason": "reason"}
 _LABEL = re.compile(r"(?m)^[ \t]*(No\s*/\s*Driver|Competitor|Time|Session|Fact|Infringement|Decision|Reason)\b[ \t:]*")
 _LABEL_ANYWHERE = re.compile(r"\b(No\s*/\s*Driver|Competitor|Session|Fact|Infringement|Decision|Reason)\b[ \t:]*")
-_END = re.compile(r"Competitors are reminded|The Competitors? (?:is|are) reminded|Competitors are advised|"
-                  r"Competitors are informed|The (?:team|competitor) has the right", re.I)
+# End of the Reason. pypdf often breaks lines in the middle of these sentences, hence \s+ between the words.
+_END = re.compile(r"(?:The\s+)?Competitors?\s+(?:is|are)\s+(?:reminded|advised|informed)|"
+                  r"The\s+(?:team|competitor)\s+has\s+the\s+right|"
+                  r"Decisions\s+of\s+the\s+Stewards\s+are\s+taken\s+independently", re.I)
+_INDEPENDENT = re.compile(r"Decisions\s+of\s+the\s+Stewards\s+are\s+taken\s+independently[^.]*\.", re.I)
+_APPEAL = re.compile(r"Competitors?\s+(?:is|are)\s+reminded[^.]*\.", re.I)
+_NAME_WORD = (r"(?:[A-ZÀ-Ö][a-zà-öø-ÿ'’]+(?:-[A-ZÀ-Ö]?[a-zà-öø-ÿ'’]+)*|[A-Z]{2,}|"
+              r"Al|El|bin|de|da|van|von|der|du|di|le|la)")
+# A trailing run of capitalised words with no punctuation = the stewards' signature block.
+_SIGNATURE_TAIL = re.compile(rf"(?:\s+{_NAME_WORD}){{4,}}\s*$")
 _DATE = re.compile(r"\bDate\s*:?\s*(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)\s+(\d{4})")
 _DOC = re.compile(r"\bDocument\s*:?\s*(\d{1,3})\b")
 
@@ -59,6 +67,7 @@ def parse_decision(text: str, link: PdfLink) -> StewardDecision | None:
     cut = _END.search(reason)
     if cut:
         reason = reason[:cut.start()]
+    reason = _SIGNATURE_TAIL.sub("", " ".join(reason.split()))   # no closing sentence found: drop the names
     if not values.get("decision") or not (values.get("fact") or reason):
         return None
 
@@ -84,7 +93,25 @@ def parse_decision(text: str, link: PdfLink) -> StewardDecision | None:
         infringement=_norm(values.get("infringement", "")),
         decision=_norm(values.get("decision", "")),
         reason=_norm(reason),
+        stewards=steward_names(text),
     )
+
+
+def steward_names(text: str) -> tuple[str, ...]:
+    """Signature lines at the end of a decision ("First Last First Last"), e.g. for the anonymiser to remove.
+
+    They follow the closing sentences (right of appeal, "Decisions of the Stewards are taken independently...").
+    """
+    ends = [m.end() for m in (*_APPEAL.finditer(text), *_INDEPENDENT.finditer(text))]
+    if not ends:
+        return ()
+    tail = text[max(ends):]
+    lines = []
+    for ln in tail.split("\n"):
+        ln = " ".join(ln.replace("The Stewards", " ").split()).strip(" -_")
+        if ln and re.fullmatch(rf"{_NAME_WORD}(?:\s+{_NAME_WORD})+", ln):
+            lines.append(ln)
+    return tuple(lines)
 
 
 _HEADING = re.compile(r"^(?:ARTICLE\s+[A-Z]?\d+[A-Z]?\s*[:.\-–]\s*.{3,90}|[A-Z]\d{1,2}(?:\.\d{1,2}){1,2}\s+[A-Z].{2,80}"
