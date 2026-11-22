@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
 
-from carfix.domain.models import LabelledText
-from carfix.domain.ports import TextClassifier
+from pitwall.domain.models import LabelledText
+from pitwall.domain.ports import TextClassifier
 
 
 def evaluate_classifier(clf: TextClassifier, examples: list[LabelledText], labels: list[str]) -> dict:

@@ -14,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
-from carfix.domain.models import LabelledText
+from pitwall.domain.models import LabelledText
 
 
 def _device():

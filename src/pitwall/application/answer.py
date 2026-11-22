@@ -8,9 +8,9 @@ import re
 import time
 from dataclasses import dataclass, field
 
-from carfix.domain.models import Answer, Citation, RetrievedChunk
-from carfix.domain.policies import REFUSAL_MESSAGE, RefusalPolicy, is_refusal
-from carfix.domain.ports import LLM, Retriever
+from pitwall.domain.models import Answer, Citation, RetrievedChunk
+from pitwall.domain.policies import REFUSAL_MESSAGE, RefusalPolicy, is_refusal
+from pitwall.domain.ports import LLM, Retriever
 
 from .prompts import SYSTEM_NO_RAG, SYSTEM_RAG, build_user_prompt
 
@@ -63,7 +63,7 @@ class AnswerWithoutRAG:
 
 
 def extract_citations(text: str, retrieved: list[RetrievedChunk]) -> list[Citation]:
-    """Keep the cited guides that really were in the context: an invented id is silently dropped."""
+    """Keep the cited documents that really were in the context: an invented id is silently dropped."""
     by_doc: dict[str, RetrievedChunk] = {}
     for r in retrieved:
         by_doc.setdefault(r.chunk.doc_id, r)

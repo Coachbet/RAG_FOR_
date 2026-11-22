@@ -1,6 +1,6 @@
 """Build dist/space/: everything the Hugging Face Space needs, nothing more.
 
-    uv run python scripts/prepare_space.py        (then `make space-push SPACE=user/carfix`)
+    uv run python scripts/prepare_space.py        (then `make space-push SPACE=user/pitwall-ai`)
 
 Copies app.py, src/, the FAISS index, the fine-tuned classifier and the evaluation tables, writes a
 requirements.txt (CPU-only torch) and the Space README with its YAML header, and a .env with the
@@ -16,28 +16,29 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from carfix.config import settings  # noqa: E402
+from pitwall.config import settings  # noqa: E402
 
 OUT = ROOT / "dist" / "space"
 
 SPACE_README = """---
-title: CarFix
-emoji: 🔧
-colorFrom: yellow
-colorTo: red
+title: PitWall AI
+emoji: 🏁
+colorFrom: red
+colorTo: gray
 sdk: gradio
 sdk_version: {gradio_version}
 app_file: app.py
 pinned: false
-license: cc-by-nc-sa-3.0
-short_description: Car repair answers from iFixit guides, with sources
+license: other
+short_description: F1 incident analysis from FIA rules, with sources
 ---
 
-# CarFix
+# PitWall AI
 
-RAG assistant that answers car repair questions from iFixit repair guides (with citations and refusals), plus a
-fine-tuned classifier that routes a car problem to the right system. ESSEC AIDAMS, Business Data Science project.
-Guides: iFixit, CC BY-NC-SA 3.0. Code and evaluation: see the project repository.
+Decision support for Formula 1 incidents: a RAG assistant that finds the applicable FIA rules and comparable past
+stewards' decisions (with citations and refusals), plus a fine-tuned classifier that predicts the likely outcome.
+ESSEC AIDAMS, Business Data Science project. Not an official FIA tool: the stewards decide.
+Sources: public FIA documents (drivers anonymised). Code and evaluation: see the project repository.
 """
 
 PUBLIC_SETTINGS = ["LLM_PROVIDER", "LLM_MODEL", "EMBEDDING_MODEL", "RETRIEVAL_MODE", "TOP_K", "MIN_SCORE",
@@ -57,7 +58,7 @@ def main() -> None:
     if Path(settings.classifier_path).exists():
         shutil.copytree(settings.classifier_path, OUT / "models" / "classifier")
     else:
-        print("WARNING: no fine-tuned classifier (run `make train`), the 'Route a problem' tab will say so.")
+        print("WARNING: no fine-tuned classifier (run `make train`), the 'Analyse an incident' tab will say so.")
     if (settings.eval_results / "results.md").exists():
         (OUT / "eval" / "results").mkdir(parents=True)
         shutil.copy(settings.eval_results / "results.md", OUT / "eval" / "results" / "results.md")
@@ -76,7 +77,7 @@ def main() -> None:
         "CHUNK_OVERLAP": settings.chunk_overlap, "CLASSIFIER_BASE": settings.classifier_base,
     }
     (OUT / ".env").write_text("".join(f"{k}={env[k]}\n" for k in PUBLIC_SETTINGS))
-    print(f"Space ready in {OUT}. Next: make space-push SPACE=<your-hf-username>/carfix, then add the "
+    print(f"Space ready in {OUT}. Next: make space-push SPACE=<your-hf-username>/pitwall-ai, then add the "
           f"GROQ_API_KEY secret in the Space settings.")
 
 

@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from carfix.domain.models import RetrievedChunk
-from carfix.domain.ports import Embedder, KeywordIndex, VectorStore
+from pitwall.domain.models import RetrievedChunk
+from pitwall.domain.ports import Embedder, KeywordIndex, VectorStore
 
 
 @dataclass

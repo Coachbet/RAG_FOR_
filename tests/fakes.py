@@ -6,7 +6,7 @@ import re
 
 import numpy as np
 
-from carfix.domain.models import Document, Section
+from pitwall.domain.models import Document, Section
 
 
 class FakeEmbedder:
@@ -32,7 +32,7 @@ class FakeEmbedder:
 class FakeLLM:
     name = "fake-llm"
 
-    def __init__(self, reply: str = "Remove the caliper bolts and slide the pads out [ifixit-1]."):
+    def __init__(self, reply: str = "The front axle must be alongside the mirror at the apex [dsg-1]."):
         self.reply = reply
         self.calls = 0
 
@@ -43,17 +43,24 @@ class FakeLLM:
 
 def sample_docs() -> list[Document]:
     return [
-        Document("ifixit-1", "Front Brake Pads Replacement", "https://www.ifixit.com/Guide/1",
-                 [Section("Introduction", "Replace worn front brake pads when they squeal or grind."),
-                  Section("Step 1", "Loosen the lug nuts and lift the car with a jack, then use jack stands."),
-                  Section("Step 2", "Remove the two caliper bolts with a 14 mm socket and slide the brake pads out.")],
-                 category="2006-2011 Honda Civic", date="2024-05-01"),
-        Document("ifixit-2", "Headlight Bulb Replacement", "https://www.ifixit.com/Guide/2",
-                 [Section("Step 1", "Open the hood and twist the headlight bulb socket counterclockwise."),
-                  Section("Step 2", "Unplug the connector and insert the new halogen bulb.")],
-                 category="2009-2013 Toyota Corolla", date="2023-02-10"),
-        Document("ifixit-3", "Cabin Air Filter Replacement", "https://www.ifixit.com/Guide/3",
-                 [Section("Step 1", "Empty the glove box and release the stops to lower it."),
-                  Section("Step 2", "Slide out the cabin air filter and insert the new filter, arrow down.")],
-                 category="2012-2016 Ford Focus", date="2022-11-20"),
+        Document("dsg-1", "Driving Standards Guidelines", "https://www.fia.com/dsg.pdf",
+                 [Section("p. 1 (A. Overtaking on the inside)",
+                          "Overtaking on the inside of a corner: the overtaking car must have its front axle "
+                          "alongside the mirror of the other car at the apex."),
+                  Section("p. 2", "The overtaking car must be driven in a safe and controlled manner and be able "
+                                  "to make the corner within track limits."),
+                  Section("p. 3", "When defending, more than one change of direction on a straight is not "
+                                  "permitted.")],
+                 category="guidelines", date="2026-02-26"),
+        Document("pg-1", "Penalty Guidelines", "https://www.fia.com/pg.pdf",
+                 [Section("p. 1", "Causing a collision in the race: baseline 10 second time penalty and "
+                                  "penalty points depending on severity."),
+                  Section("p. 2", "Leaving the track and gaining a lasting advantage: the advantage must be "
+                                  "given back, otherwise a 5 second time penalty.")],
+                 category="guidelines", date="2026-03-06"),
+        Document("dec-1", "2025 British Grand Prix, stewards' decision (Doc 24): Offence - Driver A - unsafe "
+                          "driving behind the safety car", "https://www.fia.com/dec.pdf",
+                 [Section("Fact", "Driver A braked heavily behind the safety car at Turn 13."),
+                  Section("Decision", "10 second time penalty and 2 penalty points.")],
+                 category="decision", date="2025-07-06"),
     ]

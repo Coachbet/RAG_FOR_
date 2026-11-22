@@ -2,7 +2,8 @@
 
 - RefusalPolicy: refuse WITHOUT calling the LLM when retrieval found nothing relevant
   (Session 5.1, failure 3 "the model answers anyway", fix: similarity threshold).
-- latest_versions: keep one version per title (Session 5.1, failure 2 "outdated documents").
+- latest_versions: keep one version per title (Session 5.1, failure 2 "outdated documents"), e.g. only the
+  latest issue of the Sporting Regulations.
 """
 from __future__ import annotations
 
@@ -10,7 +11,7 @@ from dataclasses import dataclass
 
 from .models import Document, RetrievedChunk
 
-REFUSAL_MESSAGE = "I don't have that information in the repair guides."
+REFUSAL_MESSAGE = "I don't have that information in the FIA documents."
 
 
 @dataclass(frozen=True)

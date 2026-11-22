@@ -1,7 +1,7 @@
 """Baselines the fine-tuned model must beat (otherwise fine-tuning was not worth it).
 
 - MajorityClassifier: always predicts the most frequent training label (the floor).
-- ZeroShotEmbeddingClassifier: no training; cosine similarity between the message and each label
+- ZeroShotEmbeddingClassifier: no training; cosine similarity between the incident and each label
   description, with the RAG embedding model (Session 4.1 "route and classify").
 - LLMPromptClassifier: the LLM with a plain prompt listing the categories (the assignment's "plain prompt").
 """
@@ -11,10 +11,10 @@ from collections import Counter
 
 import numpy as np
 
-from carfix.application.prompts import SYSTEM_CLASSIFY
-from carfix.domain.labels import LABELS
-from carfix.domain.models import LabelledText
-from carfix.domain.ports import LLM, Embedder
+from pitwall.application.prompts import SYSTEM_CLASSIFY
+from pitwall.domain.labels import LABELS
+from pitwall.domain.models import LabelledText
+from pitwall.domain.ports import LLM, Embedder
 
 
 class MajorityClassifier:

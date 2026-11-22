@@ -3,9 +3,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from carfix.domain.models import Chunk, Document
-from carfix.domain.policies import latest_versions
-from carfix.domain.ports import Embedder, VectorStore
+from pitwall.domain.models import Chunk, Document
+from pitwall.domain.policies import latest_versions
+from pitwall.domain.ports import Embedder, VectorStore
 
 from .chunking import chunk_documents
 

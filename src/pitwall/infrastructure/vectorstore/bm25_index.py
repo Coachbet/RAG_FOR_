@@ -9,7 +9,7 @@ import re
 
 from rank_bm25 import BM25Okapi
 
-from carfix.domain.models import Chunk
+from pitwall.domain.models import Chunk
 
 _TOKEN = re.compile(r"[a-z0-9]+")
 _STOP = set("a an the of to and or in on for with is are be how do i my it this that what can you your "

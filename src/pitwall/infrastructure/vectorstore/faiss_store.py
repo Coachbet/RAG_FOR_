@@ -13,7 +13,7 @@ from pathlib import Path
 import faiss
 import numpy as np
 
-from carfix.domain.models import Chunk, RetrievedChunk
+from pitwall.domain.models import Chunk, RetrievedChunk
 
 from ..storage.jsonl import read_jsonl, write_jsonl
 

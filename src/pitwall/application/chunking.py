@@ -1,13 +1,13 @@
 """Step 1 of RAG: chunking.
 
-Repair guides are already structured in steps, so we cut at step boundaries (Session 5.1: "respect the
-structure") and pack consecutive steps until `max_words`. The last section of a chunk is repeated at the
-start of the next one (overlap), so an instruction split in two is still found.
+FIA documents are already structured (rulebook pages, decision fields), so we cut at section boundaries
+(Session 5.1: "respect the structure") and pack consecutive sections until `max_words`. The last section of a
+chunk is repeated at the start of the next one (overlap), so a rule split in two is still found.
 A single section longer than `max_words` is cut into word windows with `overlap_words`.
 """
 from __future__ import annotations
 
-from carfix.domain.models import Chunk, Document, Section
+from pitwall.domain.models import Chunk, Document, Section
 
 
 def _split_long(section: Section, max_words: int, overlap_words: int) -> list[Section]:

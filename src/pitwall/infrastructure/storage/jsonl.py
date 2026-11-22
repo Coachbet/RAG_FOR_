@@ -5,7 +5,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from carfix.domain.models import Document, LabelledText, Section
+from pitwall.domain.models import Document, LabelledText, Section
 
 
 def read_jsonl(path: str | Path) -> list[dict]:

@@ -4,7 +4,7 @@
     uv run python scripts/train_classifier.py --curve 50,150     # + learning curve (how much data is needed)
     uv run python scripts/train_classifier.py --skip-llm         # no Groq calls
 
-Compared on data/ft/test.jsonl (held out) and data/ft/hard.jsonl (hand-written, harder):
+Compared on data/ft/test.jsonl (held out) and, if it exists, data/ft/hard.jsonl (hand-written, harder):
   1. majority class               (the floor)
   2. base model                   (pretrained DistilBERT + untrained head = no fine-tuning)
   3. zero-shot embeddings         (no training: cosine with the label descriptions)
@@ -22,17 +22,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from carfix import container  # noqa: E402
-from carfix.application.evaluate_classifier import evaluate_classifier  # noqa: E402
-from carfix.config import settings  # noqa: E402
-from carfix.domain.labels import LABEL_NAMES  # noqa: E402
-from carfix.infrastructure.classifiers.baselines import (  # noqa: E402
+from pitwall import container  # noqa: E402
+from pitwall.application.evaluate_classifier import evaluate_classifier  # noqa: E402
+from pitwall.config import settings  # noqa: E402
+from pitwall.domain.labels import LABEL_NAMES  # noqa: E402
+from pitwall.infrastructure.classifiers.baselines import (  # noqa: E402
     LLMPromptClassifier,
     MajorityClassifier,
     ZeroShotEmbeddingClassifier,
 )
-from carfix.infrastructure.classifiers.finetuned import FineTunedClassifier  # noqa: E402
-from carfix.infrastructure.storage.jsonl import load_labelled  # noqa: E402
+from pitwall.infrastructure.classifiers.finetuned import FineTunedClassifier  # noqa: E402
+from pitwall.infrastructure.storage.jsonl import load_labelled  # noqa: E402
 
 
 def train_model(train, val, args, name="fine-tuned DistilBERT"):
@@ -56,7 +56,7 @@ def main() -> None:
     train, val, test = (load_labelled(ft / f"{s}.jsonl") for s in ("train", "val", "test"))
     hard = load_labelled(ft / "hard.jsonl")
     if not train:
-        sys.exit("No training data. Run `make ft-data` first.")
+        sys.exit("No training data. Run `make data` first.")
     print(f"train {len(train)} / val {len(val)} / test {len(test)} / hard {len(hard)}")
 
     print("\nFine-tuning DistilBERT...")

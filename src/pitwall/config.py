@@ -37,9 +37,12 @@ class Settings:
     classifier_path: str = _env("CLASSIFIER_PATH", str(ROOT / "models" / "classifier"))
 
     # Data
-    ifixit_contact: str = _env("IFIXIT_CONTACT", "student project")
+    fia_contact: str = _env("FIA_CONTACT", "student project")
+    fia_delay_s: float = float(_env("FIA_DELAY_S", "10"))             # robots.txt of fia.com: Crawl-delay 10
+    sources_dir: Path = ROOT / "data" / "sources"
+    raw_dir: Path = ROOT / "data" / "raw" / "fia"
+    processed_dir: Path = ROOT / "data" / "processed"
     documents_path: Path = ROOT / "data" / "processed" / "documents.jsonl"
-    raw_dir: Path = ROOT / "data" / "raw" / "ifixit"
     index_dir: Path = ROOT / "data" / "index"
     eval_questions: Path = ROOT / "eval" / "questions.jsonl"
     eval_results: Path = ROOT / "eval" / "results"

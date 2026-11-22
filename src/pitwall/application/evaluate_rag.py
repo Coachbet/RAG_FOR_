@@ -1,10 +1,10 @@
 """Use case: evaluate the RAG system honestly (Session 5.1, "Evaluating a RAG system").
 
 Retrieval and generation are measured SEPARATELY:
-- retrieval: hit rate@k and MRR (is the expected guide among the retrieved chunks?), on answerable questions;
+- retrieval: hit rate@k and MRR (is the expected document among the retrieved chunks?), on answerable questions;
 - refusals: does the system refuse the unanswerable questions, and does it wrongly refuse answerable ones?
 - generation: correctness of the answer against the expected answer (LLM grader + manual check column),
-  and citation accuracy (did it cite the expected guide?).
+  and citation accuracy (did it cite the expected document?).
 
 Threshold calibration (`sweep_thresholds`) must be run on the DEV split only: choosing the threshold on the
 test questions would be tuning on the test set.
@@ -15,9 +15,9 @@ import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from carfix.domain.models import Answer
-from carfix.domain.policies import best_score
-from carfix.domain.ports import LLM, Retriever
+from pitwall.domain.models import Answer
+from pitwall.domain.policies import best_score
+from pitwall.domain.ports import LLM, Retriever
 
 
 @dataclass(frozen=True)
@@ -52,7 +52,7 @@ def load_questions(path: str | Path, split: str | None = None) -> list[EvalQuest
 # ---------------------------------------------------------------- retrieval
 
 def retrieval_ranks(retriever: Retriever, questions: list[EvalQuestion], k: int) -> dict[str, int | None]:
-    """1-based rank of the first chunk from an expected guide, None if not in the top k."""
+    """1-based rank of the first chunk from an expected document, None if not in the top k."""
     ranks: dict[str, int | None] = {}
     for q in questions:
         if not q.answerable:
@@ -108,7 +108,7 @@ def pick_threshold(rows: list[dict]) -> float:
 
 # ---------------------------------------------------------------- generation
 
-GRADER_SYSTEM = """You grade the answer of a car repair assistant against a reference answer.
+GRADER_SYSTEM = """You grade the answer of a Formula 1 rules assistant against a reference answer.
 Reply with one word:
 - correct: the answer contains the key facts of the reference and nothing that contradicts it;
 - partial: some key facts are right, some are missing, nothing contradicts the reference;

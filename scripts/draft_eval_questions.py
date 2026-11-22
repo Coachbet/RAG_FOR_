@@ -1,16 +1,18 @@
-"""Draft candidate evaluation questions from the guides, to be CHECKED AND EDITED BY A HUMAN.
+"""Draft candidate evaluation questions from the FIA documents, to be CHECKED AND EDITED BY A HUMAN.
 
     uv run python scripts/draft_eval_questions.py --n 30
 
-For a sample of guides, the LLM proposes one realistic question a driver would ask, the expected answer
-(taken from the guide) and the guide id. Output: eval/questions.draft.jsonl with "verified": false.
+For a sample of documents, the LLM proposes one realistic question a team, journalist or broadcaster would ask,
+the expected answer (taken from the document) and the document id.
+Output: eval/questions.draft.jsonl with "verified": false.
 
 Then, by hand (this is the part the instructor will question you about):
-  1. read each draft against the guide, fix or delete it, keep the 15 best for "test" and others for "dev";
-  2. write the unanswerable questions yourselves (see eval/questions.jsonl): plausible car questions whose
-     answer is NOT in any guide (check with `make ask Q="..."` that the best score is low or the model refuses);
+  1. read each draft against the document, fix or delete it, keep the 15 best for "test" and others for "dev";
+  2. write the unanswerable questions yourselves (see eval/questions.jsonl): plausible F1 questions whose
+     answer is NOT in any indexed document (check with `make ask Q="..."` that the best score is low or the
+     model refuses);
   3. copy the verified lines into eval/questions.jsonl.
-Never use drafted questions without reading them: the LLM can draft questions that the guide does not answer.
+Never use drafted questions without reading them: the LLM can draft questions that the document does not answer.
 """
 from __future__ import annotations
 
@@ -22,16 +24,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from carfix import container  # noqa: E402
-from carfix.config import settings  # noqa: E402
-from carfix.infrastructure.storage.jsonl import JsonlDocumentRepository, write_jsonl  # noqa: E402
+from pitwall import container  # noqa: E402
+from pitwall.config import settings  # noqa: E402
+from pitwall.infrastructure.storage.jsonl import JsonlDocumentRepository, write_jsonl  # noqa: E402
 
-SYSTEM = """You write evaluation questions for a car repair assistant that answers from iFixit guides.
-Given one guide, write ONE question that a real driver could ask (do not copy the title, do not mention
-"the guide"), whose answer is clearly and fully stated in the guide text. Prefer concrete facts: a tool,
-a part, a warning, a step, how to access something.
-Reply with JSON only: {"question": "...", "expected_answer": "... (1-2 sentences, facts from the guide)",
-"kind": "procedure|tools|safety|fact"}"""
+SYSTEM = """You write evaluation questions for a Formula 1 rules assistant that answers from FIA documents
+(Sporting Regulations, Driving Standards Guidelines, Penalty Guidelines, anonymised stewards' decisions).
+Given one document, write ONE question that a team, a journalist or a broadcaster could ask (do not copy the
+title, do not mention "the document"), whose answer is clearly and fully stated in the text. Prefer concrete
+facts: a rule, a penalty, a condition, what the stewards decided in a precedent.
+Reply with JSON only: {"question": "...", "expected_answer": "... (1-2 sentences, facts from the document)",
+"kind": "rule|penalty|procedure|precedent"}"""
 
 
 def merge(draft_path: str) -> None:
@@ -65,7 +68,7 @@ def main() -> None:
     rows = []
     for i, d in enumerate(sample):
         text = "\n".join(f"{s.title}: {s.text}" for s in d.sections)[:6000]
-        raw = llm.generate(SYSTEM, f"Guide [{d.doc_id}] {d.title} ({d.category})\n{text}", max_tokens=300)
+        raw = llm.generate(SYSTEM, f"Document [{d.doc_id}] {d.title} ({d.category})\n{text}", max_tokens=300)
         try:
             j = json.loads(raw[raw.find("{"): raw.rfind("}") + 1])
         except json.JSONDecodeError:

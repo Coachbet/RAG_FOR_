@@ -1,7 +1,7 @@
 """Pick the LLM adapter from the configuration: LLM_PROVIDER = groq | ollama | transformers."""
 from __future__ import annotations
 
-from carfix.domain.ports import LLM
+from pitwall.domain.ports import LLM
 
 
 def make_llm(provider: str, model: str, api_key: str | None = None, ollama_host: str = "http://localhost:11434") -> LLM:
