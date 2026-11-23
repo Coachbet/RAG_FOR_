@@ -49,3 +49,16 @@ def test_leakage_terms_detects_verdict_words():
     assert "reprimand" in leakage_terms("A reprimand was issued")
     assert "allegedly" in leakage_terms("Driver A allegedly impeded Driver B")
     assert leakage_terms("Driver A impeded Driver B at Turn 3 in Q2.") == []
+
+
+
+def test_no_penalty_wording_is_no_further_action():
+    assert outcome_label("No penalty is applied.") == "no_further_action"
+    assert outcome_label("No Penalty is applied") == "no_further_action"
+    assert outcome_label("10 second time penalty. No penalty points") == "time_penalty"
+
+
+def test_incident_titles_are_on_track():
+    assert is_on_track("Decision - Car 30 - alleged incident with car")
+    assert is_on_track("Infringement - Car 10 - colliding with car")
+    assert not is_on_track("Car 4 - changes to PU elements")
