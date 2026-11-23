@@ -19,8 +19,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from carfix import container  # noqa: E402
-from carfix.application.evaluate_rag import (  # noqa: E402
+from pitwall import container  # noqa: E402
+from pitwall.application.evaluate_rag import (  # noqa: E402
     evaluate_answers,
     load_questions,
     pick_threshold,
@@ -30,7 +30,7 @@ from carfix.application.evaluate_rag import (  # noqa: E402
     summarise,
     sweep_thresholds,
 )
-from carfix.config import settings  # noqa: E402
+from pitwall.config import settings  # noqa: E402
 
 
 def pct(x) -> str:

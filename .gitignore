@@ -9,8 +9,15 @@ __pycache__/
 .ruff_cache/
 .ipynb_checkpoints/
 
-# raw API cache (re-downloadable with `make data`); processed documents ARE committed (shareable, CC BY-NC-SA)
-data/raw/ifixit/
+# FIA documents are NOT redistributed: only data/sources/ (links) and data/ft/label_overrides.csv are committed.
+# Everything below is regenerated with `make data`.
+data/raw/fia/
+data/processed/
+data/ft/*.jsonl
+data/ft/label_review.csv
+# the index holds chunked FIA text
+data/index/*
+!data/index/.gitkeep
 
 # build outputs
 dist/

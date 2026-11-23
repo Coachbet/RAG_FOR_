@@ -11,11 +11,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from carfix import container  # noqa: E402
-from carfix.application.ingest import IngestDocuments  # noqa: E402
-from carfix.config import settings  # noqa: E402
-from carfix.infrastructure.storage.jsonl import JsonlDocumentRepository  # noqa: E402
-from carfix.infrastructure.vectorstore.faiss_store import FaissStore  # noqa: E402
+from pitwall import container  # noqa: E402
+from pitwall.application.ingest import IngestDocuments  # noqa: E402
+from pitwall.config import settings  # noqa: E402
+from pitwall.infrastructure.storage.jsonl import JsonlDocumentRepository  # noqa: E402
+from pitwall.infrastructure.vectorstore.faiss_store import FaissStore  # noqa: E402
 
 
 def main() -> None:

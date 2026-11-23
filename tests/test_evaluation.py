@@ -1,8 +1,8 @@
 import json
 
-from carfix.application.answer import AnswerQuestion
-from carfix.application.evaluate_classifier import evaluate_classifier
-from carfix.application.evaluate_rag import (
+from pitwall.application.answer import AnswerQuestion
+from pitwall.application.evaluate_classifier import evaluate_classifier
+from pitwall.application.evaluate_rag import (
     EvalQuestion,
     evaluate_answers,
     grade_answer,
@@ -13,18 +13,19 @@ from carfix.application.evaluate_rag import (
     summarise,
     sweep_thresholds,
 )
-from carfix.application.ingest import IngestDocuments
-from carfix.application.retrieval import DenseRetriever
-from carfix.domain.models import Answer, LabelledText
-from carfix.domain.policies import RefusalPolicy
-from carfix.infrastructure.classifiers.baselines import MajorityClassifier
-from carfix.infrastructure.vectorstore.faiss_store import FaissStore
+from pitwall.application.ingest import IngestDocuments
+from pitwall.application.retrieval import DenseRetriever
+from pitwall.domain.models import Answer, LabelledText
+from pitwall.domain.policies import RefusalPolicy
+from pitwall.infrastructure.classifiers.baselines import MajorityClassifier
+from pitwall.infrastructure.vectorstore.faiss_store import FaissStore
 
 from fakes import FakeEmbedder, FakeLLM, sample_docs
 
 QS = [
-    EvalQuestion("a1", "how to remove brake pads caliper bolts", True, "Remove the caliper bolts.", ["ifixit-1"]),
-    EvalQuestion("a2", "replace headlight bulb socket", True, "Twist the socket.", ["ifixit-2"]),
+    EvalQuestion("a1", "overtaking on the inside of a corner front axle mirror apex", True,
+                 "Front axle alongside the mirror at the apex.", ["dsg-1"]),
+    EvalQuestion("a2", "penalty for causing a collision in the race", True, "10 second time penalty.", ["pg-1"]),
     EvalQuestion("u1", "chocolate cake recipe", False),
 ]
 
@@ -58,12 +59,12 @@ def test_sweep_and_pick_threshold():
 
 
 def test_end_to_end_summary():
-    rag = AnswerQuestion(_retriever(), FakeLLM("Remove the caliper bolts [ifixit-1]."), RefusalPolicy(0.3))
+    rag = AnswerQuestion(_retriever(), FakeLLM("Front axle alongside the mirror [dsg-1]."), RefusalPolicy(0.3))
     results = evaluate_answers(rag, None, QS)
     s = summarise(results)
     assert s["unanswerable_refused"] == 1.0 and s["answerable_wrongly_refused"] == 0.0
     assert s["llm_calls_saved_by_threshold"] == 1
-    assert s["citation_accuracy"] == 0.5                  # a2 cited ifixit-1 instead of ifixit-2
+    assert s["citation_accuracy"] == 0.5                  # a2 cited dsg-1 instead of pg-1
 
 
 def test_grader():
@@ -75,8 +76,8 @@ def test_grader():
 
 
 def test_classifier_metrics():
-    data = [LabelledText("a", "brakes"), LabelledText("b", "brakes"), LabelledText("c", "engine")]
-    r = evaluate_classifier(MajorityClassifier(data), data, ["brakes", "engine"])
+    data = [LabelledText("a", "time_penalty"), LabelledText("b", "time_penalty"), LabelledText("c", "reprimand")]
+    r = evaluate_classifier(MajorityClassifier(data), data, ["time_penalty", "reprimand"])
     assert abs(r["accuracy"] - 2 / 3) < 1e-9
     assert r["confusion_matrix"]["matrix"] == [[2, 0], [1, 0]]
     assert len(r["errors"]) == 1

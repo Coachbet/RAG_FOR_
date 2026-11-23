@@ -4,7 +4,8 @@
 
 1. threshold.png: best retrieval score of each DEV question, answerable vs unanswerable, with MIN_SCORE
    (why the threshold is where it is).
-2. embeddings_umap.png: the chunk embeddings projected in 2D with UMAP (Session 3.2), coloured by car make.
+2. embeddings_umap.png: the chunk embeddings projected in 2D with UMAP (Session 3.2), coloured by document
+   type (regulation, guidelines, decision).
 3. confusion_matrix.png: confusion matrix of the fine-tuned classifier on the test set (Session 2.1).
 Each figure is skipped if its input does not exist yet.
 """
@@ -24,7 +25,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
-from carfix.config import settings  # noqa: E402
+from pitwall.config import settings  # noqa: E402
 
 FIG = ROOT / "reports" / "figures"
 ORANGE, GREY = "#E8590C", "#868E96"
@@ -61,14 +62,13 @@ def umap_figure() -> None:
         return
     import umap
 
-    from carfix.infrastructure.vectorstore.faiss_store import FaissStore
+    from pitwall.infrastructure.vectorstore.faiss_store import FaissStore
 
     store = FaissStore.load(settings.index_dir)
     X = store.vectors()
-    makes = [(c.category.split() or ["?"])[0] if not c.category[:1].isdigit()
-             else (c.category.split()[1:2] or ["?"])[0] for c in store.chunks]
-    top = [m for m, _ in Counter(makes).most_common(8)]
-    labels = [m if m in top else "other" for m in makes]
+    kinds = [c.category or "?" for c in store.chunks]
+    top = [m for m, _ in Counter(kinds).most_common(8)]
+    labels = [m if m in top else "other" for m in kinds]
     Y = umap.UMAP(n_neighbors=15, min_dist=0.1, metric="cosine", random_state=0).fit_transform(X)
     fig, ax = plt.subplots(figsize=(7, 5))
     cmap = plt.get_cmap("tab10")
@@ -78,7 +78,7 @@ def umap_figure() -> None:
     ax.legend(fontsize=7, markerscale=2)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title(f"{len(store)} chunk embeddings (UMAP), coloured by car make")
+    ax.set_title(f"{len(store)} chunk embeddings (UMAP), coloured by document type")
     fig.tight_layout()
     fig.savefig(FIG / "embeddings_umap.png", dpi=200)
     print("saved embeddings_umap.png")

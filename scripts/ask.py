@@ -1,6 +1,6 @@
 """Ask one question from the terminal and see everything: retrieved chunks, scores, answer, citations.
 
-    uv run python scripts/ask.py "How do I replace the front brake pads on a Honda Civic?"
+    uv run python scripts/ask.py "What must an overtaking car achieve on the inside of a corner?"
     uv run python scripts/ask.py --mode dense --min-score 0.85 "..."
 """
 from __future__ import annotations
@@ -11,8 +11,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from carfix import container  # noqa: E402
-from carfix.config import settings  # noqa: E402
+from pitwall import container  # noqa: E402
+from pitwall.config import settings  # noqa: E402
 
 
 def main() -> None:
