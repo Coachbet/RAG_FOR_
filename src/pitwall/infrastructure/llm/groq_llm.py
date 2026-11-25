@@ -22,6 +22,10 @@ class GroqLLM:
     def generate(self, system: str, user: str, max_tokens: int = 500) -> str:
         import groq
 
+        extra = {}
+        if "gpt-oss" in self.model:  # reasoning model: its thinking tokens count in max_tokens
+            extra["reasoning_effort"] = "low"
+            max_tokens = max(max_tokens, 256)
         for attempt in range(self.max_retries):
             try:
                 r = self.client.chat.completions.create(
@@ -29,6 +33,7 @@ class GroqLLM:
                     messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
                     temperature=self.temperature,
                     max_tokens=max_tokens,
+                    **extra,
                 )
                 return (r.choices[0].message.content or "").strip()
             except groq.RateLimitError:  # free tier: a few requests per minute, wait and retry
