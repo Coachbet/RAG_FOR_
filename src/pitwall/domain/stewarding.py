@@ -18,7 +18,7 @@ _HEAVIER = re.compile(
     re.I)
 _TIME = re.compile(r"time penalty|\b\d+\s*(?:-\s*)?(?:s|secs?|seconds?)\b(?:\s+\w+){0,3}?\s+penalty", re.I)
 _REPRIMAND = re.compile(r"\breprimand|\bwarning\b|black and white flag", re.I)
-_NFA = re.compile(r"no further action|\bnfa\b|no action", re.I)
+_NFA = re.compile(r"no further action|\bnfa\b|no action|no penalty", re.I)
 
 
 def outcome_label(decision: str) -> str | None:
@@ -45,7 +45,7 @@ def outcome_label(decision: str) -> str | None:
 # ------------------------------------------------------------------ on-track filter
 
 _ON_TRACK = re.compile(
-    r"collision|contact with|forc\w* (?:\w+ )?(?:another )?(?:car|driver)s? off|forcing|"
+    r"collision|colliding|collided|incident|contact with|forc\w* (?:\w+ )?(?:another )?(?:car|driver)s? off|forcing|"
     r"leaving the track|left the track|track limits|lasting advantage|gaining an advantage|"
     r"overtak|change of direction|moving under braking|more than one move|erratic|dangerous|"
     r"impeding|impeded|unnecessarily slow|driving slowly|yellow flag|red flag|blue flag|"
